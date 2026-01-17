@@ -1,66 +1,41 @@
-const { Telegraf, Markup } = require('telegraf');
-const ytdlp = require('yt-dlp-exec');
+const { Telegraf } = require('telegraf');
+const fetch = require('node-fetch');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.start((ctx) => {
-  ctx.reply(
-    "Salom jigar 👋\n\nInstagram, TikTok yoki YouTube link tashla.\n\nNimani yuklaymiz?",
-    Markup.inlineKeyboard([
-      [Markup.button.callback('🎬 Video', 'video')],
-      [Markup.button.callback('🎧 Audio (mp3)', 'audio')]
-    ])
-  );
-});
+bot.start((ctx) => ctx.reply('Salom jigar 👋 Bot ishga tushdi!'));
 
-let lastLink = {};
+// URL yuborilganda video olish
+bot.on('text', async (ctx) => {
+  const url = ctx.message.text;
 
-bot.on('text', (ctx) => {
-  const text = ctx.message.text;
-  if (text.includes('http')) {
-    lastLink[ctx.from.id] = text;
-    ctx.reply(
-      "Tanla 👇",
-      Markup.inlineKeyboard([
-        [Markup.button.callback('🎬 Video', 'video')],
-        [Markup.button.callback('🎧 Audio (mp3)', 'audio')]
-      ])
-    );
+  if (!url.startsWith('https://')) {
+    return ctx.reply('Iltimos, to‘liq URL yuboring (Instagram yoki TikTok).');
   }
-});
-
-bot.action('video', async (ctx) => {
-  const link = lastLink[ctx.from.id];
-  if (!link) return ctx.reply("Avval link tashla jigar");
-
-  await ctx.reply("⏳ Video yuklanmoqda...");
 
   try {
-    const video = await ytdlp(link, {
-      format: 'mp4',
-      output: 'video.%(ext)s'
-    });
-    await ctx.replyWithVideo({ source: 'video.mp4' });
-  } catch (e) {
-    ctx.reply("❌ Xatolik bo‘ldi");
-  }
-});
+    await ctx.reply('Video yuklanmoqda...');
 
-bot.action('audio', async (ctx) => {
-  const link = lastLink[ctx.from.id];
-  if (!link) return ctx.reply("Avval link tashla jigar");
+    let apiUrl = '';
+    if (url.includes('instagram.com')) {
+      apiUrl = https://api.instadlapi.com/download?url=${encodeURIComponent(url)};
+    } else if (url.includes('tiktok.com')) {
+      apiUrl = https://api.tikinstaapi.com/download?url=${encodeURIComponent(url)};
+    } else {
+      return ctx.reply('Faqat Instagram yoki TikTok linkini yuboring.');
+    }
 
-  await ctx.reply("⏳ Audio yuklanmoqda...");
+    const res = await fetch(apiUrl);
+    const data = await res.json();
 
-  try {
-    const audio = await ytdlp(link, {
-      extractAudio: true,
-      audioFormat: 'mp3',
-      output: 'audio.%(ext)s'
-    });
-    await ctx.replyWithAudio({ source: 'audio.mp3' });
-  } catch (e) {
-    ctx.reply("❌ Xatolik bo‘ldi");
+    if (data.video) {
+      await ctx.replyWithDocument({ url: data.video, filename: 'video.mp4' });
+    } else {
+      ctx.reply('Video topilmadi yoki URL noto‘g‘ri.');
+    }
+
+  } catch (err) {
+    ctx.reply('Xatolik yuz berdi: ' + err.message);
   }
 });
 
