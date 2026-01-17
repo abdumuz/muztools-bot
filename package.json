@@ -1,7 +1,7 @@
 {
   "name": "muztools-bot",
   "version": "1.0.0",
-  "description": "Telegram bot for Instagram/TikTok video/audio downloading",
+  "description": "Telegram bot for Instagram/TikTok video downloading",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
