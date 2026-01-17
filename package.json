@@ -8,7 +8,5 @@
   },
   "dependencies": {
     "telegraf": "^4.13.0",
-    "yt-dlp-exec": "^1.2.0"
-  },
-  "license": "MIT"
-}
+    "yt-dlp-exec": "^1.1.1"
+  }
