@@ -1,14 +1,14 @@
 {
   "name": "muztools-bot",
   "version": "1.0.0",
-  "description": "Instagram, TikTok, YouTube video/audio downloader bot",
+  "description": "Telegram bot for Instagram/TikTok video/audio downloading",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "telegraf": "^4.13.0",
-    "@gd-codes/yt-dlp-exec": "^1.0.0"
+    "node-fetch": "^3.3.1"
   },
   "license": "MIT"
 }
